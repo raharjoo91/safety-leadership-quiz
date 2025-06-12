@@ -562,27 +562,28 @@
             document.getElementById('scorePercentage').textContent = `${Math.round((score / questions.length) * 100)}%`;
         }
 
-        function sendToGoogleSheets(data) {
-            // You'll need to replace this URL with your Google Apps Script Web App URL
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUqIH_09LnuGoIAHQc8mxXFE1SNN5uk6B0G_pW7ZvNPvnbIDMNXNF7hal3XV9RO3t-/exec';
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log('Data sent successfully:', result);
-            })
-            .catch(error => {
-                console.error('Error sending data:', error);
-                // Optionally store data locally as backup
-                localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
-            });
-        }
+function sendToGoogleSheets(data) {
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUqIH_09LnuGoIAHQc8mxXFE1SNN5uk6B0G_pW7ZvNPvnbIDMNXNF7hal3XV9RO3t-/exec';
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+            // Note: NOT 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        // Convert the JSON to a URL-encoded string
+        body: 'data=' + encodeURIComponent(JSON.stringify(data))
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Data sent successfully:', result);
+    })
+    .catch(error => {
+        console.error('Error sending data:', error);
+        localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
+    });
+}
+
 
         function restartQuiz() {
             currentQuestion = 0;
