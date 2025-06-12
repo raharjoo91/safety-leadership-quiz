@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Leadership Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .quiz-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4CAF50;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-container {
+            padding: 40px;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-number {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .start-screen, .end-screen {
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .start-screen h2, .end-screen h2 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .start-screen p, .end-screen p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .participant-info {
+            margin-bottom: 30px;
+        }
+
+        .participant-info input, .participant-info select {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin: 10px;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .score-display h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-container {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .question-container, .navigation {
+                padding: 20px;
+            }
+            
+            .quiz-header {
+                padding: 20px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>Safety Leadership Assessment</h1>
+            <p>Strengthening Safety Leadership for Proactive, Resilient Performance</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <h2>Welcome to the Safety Leadership Assessment</h2>
+            <p>This assessment will test your understanding of modern safety leadership principles, Human Organizational Performance (HOP), and effective engagement strategies.</p>
+            
+            <div class="participant-info">
+                <input type="text" id="participantName" placeholder="Your Name" required>
+                <input type="email" id="participantEmail" placeholder="Your Email" required>
+                <select id="participantRole" required>
+                    <option value="">Select Your Role</option>
+                    <option value="safety_manager">Safety Manager</option>
+                    <option value="manager">Manager</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="engineer">Engineer</option>
+                    <option value="support_team">Support Team</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="assessmentType" required>
+                    <option value="">Assessment Type</option>
+                    <option value="pre">Pre-Training Assessment</option>
+                    <option value="post">Post-Training Assessment</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startQuiz()">Start Assessment</button>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="questionScreen" class="question-container hidden">
+            <div class="question-number" id="questionNumber">1</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options-container" id="optionsContainer"></div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="end-screen hidden">
+            <h2>Assessment Complete!</h2>
+            <div class="score-display">
+                <h3 id="scoreText">Your Score: 0/10</h3>
+                <p id="scorePercentage">0%</p>
+            </div>
+            <p>Thank you for completing the Safety Leadership Assessment. Your responses have been recorded.</p>
+            <button class="btn btn-primary" onclick="restartQuiz()">Take Again</button>
+        </div>
+
+        <!-- Navigation -->
+        <div id="navigation" class="navigation hidden">
+            <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Why is it insufficient to measure safety performance solely by counting fatalities?",
+                options: [
+                    "Because fatality statistics are often inaccurate",
+                    "Because it ignores the presence of serious injuries and fails to capture proactive safety measures",
+                    "Because OSHA requires more comprehensive metrics",
+                    "Because insurance companies need different data"
+                ],
+                correct: 1,
+                reference: "Page 3: 'Is it sufficient to only count the number of fatalities when measuring safety performance?'"
+            },
+            {
+                question: "What is the key limitation of past-oriented safety thinking as described in the evolution of safety thinking?",
+                options: [
+                    "It focuses too much on future risks",
+                    "It's difficult to study something that is absent (you can only measure safety when it's missing)",
+                    "It requires expensive data collection systems",
+                    "It over-emphasizes personal protective equipment"
+                ],
+                correct: 1,
+                reference: "Page 6: 'Challenge: Difficult to study something that is absent - you can only measure safety when it's missing!'"
+            },
+            {
+                question: "According to the Human Organizational Performance (HOP) principles, why does blame fix nothing?",
+                options: [
+                    "Because it's legally risky for the organization",
+                    "Because punitive approaches inhibit learning and improvement",
+                    "Because workers will always make mistakes regardless",
+                    "Because safety incidents are usually caused by equipment failures"
+                ],
+                correct: 1,
+                reference: "Page 10: '2 Blame Fix Nothing - Punitive approaches inhibit learning and improvement'"
+            },
+            {
+                question: "What does resilience safety emphasize that traditional safety approaches often miss?",
+                options: [
+                    "The need for more safety rules and procedures",
+                    "The importance of adapting to the complexity of real-world systems",
+                    "Increased supervision of frontline workers",
+                    "Higher penalties for safety violations"
+                ],
+                correct: 1,
+                reference: "Page 8: 'Resilience engineering advocates that accidents represent not only failures of the system but also failures in adapting to the complexity of the real world.'"
+            },
+            {
+                question: "According to Kahn's Personal Engagement Theory, what are the three critical conditions for effective leadership engagement?",
+                options: [
+                    "Authority, Control, and Discipline",
+                    "Compliance, Documentation, and Enforcement",
+                    "Meaningfulness, Safety, and Availability",
+                    "Planning, Execution, and Follow-up"
+                ],
+                correct: 2,
+                reference: "Page 20: 'effective leadership engagement creates three critical conditions: Meaningfulness, Safety, and Availability'"
+            },
+            {
+                question: "What percentage of safety incidents can be reduced with quality leadership engagement according to the statistics shown?",
+                options: [
+                    "10%",
+                    "25%",
+                    "40%",
+                    "60%"
+                ],
+                correct: 2,
+                reference: "Page 16: '40% reduction in safety incidents with quality leadership engagement'"
+            },
+            {
+                question: "When focusing on life-threatening hazards during leadership engagement, what should leaders ask workers?",
+                options: [
+                    "'How many safety rules have you broken this week?'",
+                    "'What could kill me while I'm here today?'",
+                    "'Who was the last person to report a safety violation?'",
+                    "'How often do you use your PPE?'"
+                ],
+                correct: 1,
+                reference: "Page 23: 'Critical Questions: \"What could kill me while I'm here today?\"'"
+            },
+            {
+                question: "What is the primary reason we need to place more focus on systems rather than individuals according to the safety talk?",
+                options: [
+                    "Because systems are easier to change than people",
+                    "Because our choices and actions are shaped by the conditions around us",
+                    "Because systems cost less to modify than training programs",
+                    "Because OSHA focuses on system compliance"
+                ],
+                correct: 1,
+                reference: "Page 13: 'Our choices and actions are shaped by the conditions around us. We need to understand how people, technology, work processes, and the organization interact.'"
+            },
+            {
+                question: "What is the key message leaders should convey about safety priorities on having effective leadership engagement?",
+                options: [
+                    "'Safety is important, but we have deadlines to meet'",
+                    "'If there's ever a conflict between getting the job done and getting home safely, we choose getting home safely every time'",
+                    "'Safety is everyone's responsibility, but management has the final say'",
+                    "'We have a zero-tolerance policy for safety violations'"
+                ],
+                correct: 1,
+                reference: "Page 22: 'Message to Convey: \"If there's ever a conflict between getting the job done and getting home safely, we choose getting home safely every time.\"'"
+            },
+            {
+                question: "What is the main difference between traditional safety and resilience safety approaches?",
+                options: [
+                    "Traditional safety is more expensive to implement",
+                    "Resilience safety is adaptive and proactive rather than just finding and fixing problems",
+                    "Traditional safety only works in office environments",
+                    "Resilience safety eliminates the need for safety rules"
+                ],
+                correct: 1,
+                reference: "Page 7: 'Traditional Safety - Find and fix approach' vs 'Resilience Safety - Adaptive and proactive'"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let selectedAnswers = [];
+        let participantData = {};
+
+        function startQuiz() {
+            // Collect participant information
+            const name = document.getElementById('participantName').value;
+            const email = document.getElementById('participantEmail').value;
+            const role = document.getElementById('participantRole').value;
+            const assessmentType = document.getElementById('assessmentType').value;
+
+            if (!name || !email || !role || !assessmentType) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            participantData = {
+                name: name,
+                email: email,
+                role: role,
+                assessmentType: assessmentType,
+                startTime: new Date().toISOString(),
+                responses: []
+            };
+
+            // Initialize answers array
+            selectedAnswers = new Array(questions.length).fill(null);
+
+            // Show question screen
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('questionScreen').classList.remove('hidden');
+            document.getElementById('navigation').classList.remove('hidden');
+
+            // Load first question
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (selectedAnswers[currentQuestion] === index) {
+                    optionDiv.classList.add('selected');
+                }
+                
+                optionDiv.innerHTML = `<span class="option-label">${String.fromCharCode(65 + index)}.</span> ${option}`;
+                optionDiv.onclick = () => selectOption(index);
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectOption(index) {
+            selectedAnswers[currentQuestion] = index;
+            
+            // Update visual selection
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                option.classList.toggle('selected', i === index);
+            });
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').disabled = selectedAnswers[currentQuestion] === null;
+            
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById('nextBtn').textContent = 'Finish';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Next';
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            let score = 0;
+            selectedAnswers.forEach((answer, index) => {
+                if (answer === questions[index].correct) {
+                    score++;
+                }
+            });
+
+            // Prepare response data
+            participantData.responses = selectedAnswers.map((answer, index) => ({
+                questionNumber: index + 1,
+                question: questions[index].question,
+                selectedAnswer: answer,
+                selectedText: answer !== null ? questions[index].options[answer] : 'No answer',
+                correctAnswer: questions[index].correct,
+                correctText: questions[index].options[questions[index].correct],
+                isCorrect: answer === questions[index].correct,
+                reference: questions[index].reference
+            }));
+            
+            participantData.score = score;
+            participantData.percentage = Math.round((score / questions.length) * 100);
+            participantData.endTime = new Date().toISOString();
+
+            // Send data to Google Sheets
+            sendToGoogleSheets(participantData);
+
+            // Show results
+            document.getElementById('questionScreen').classList.add('hidden');
+            document.getElementById('navigation').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            document.getElementById('scoreText').textContent = `Your Score: ${score}/${questions.length}`;
+            document.getElementById('scorePercentage').textContent = `${Math.round((score / questions.length) * 100)}%`;
+        }
+
+        function sendToGoogleSheets(data) {
+            // You'll need to replace this URL with your Google Apps Script Web App URL
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwkwsEsrE2qJNrbEh4EjWACgElrPqGl_EbhTCo_k7zgvrBGjO_fY7dftlZ1bJ9YtjX/exec';
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Data sent successfully:', result);
+            })
+            .catch(error => {
+                console.error('Error sending data:', error);
+                // Optionally store data locally as backup
+                localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
+            });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            selectedAnswers = [];
+            participantData = {};
+            
+            document.getElementById('endScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            // Clear form
+            document.getElementById('participantName').value = '';
+            document.getElementById('participantEmail').value = '';
+            document.getElementById('participantRole').value = '';
+            document.getElementById('assessmentType').value = '';
+            
+            // Reset progress
+            document.getElementById('progressFill').style.width = '0%';
+        }
+    </script>
+</body>
+</html>
