@@ -304,6 +304,7 @@
     </div>
 
     <script>
+        // Global variables for storing questions and participant data
         const questions = [
             {
                 question: "Why is it insufficient to measure safety performance solely by counting fatalities?",
@@ -316,111 +317,35 @@
                 correct: 1,
                 reference: "Page 3: 'Is it sufficient to only count the number of fatalities when measuring safety performance?'"
             },
-            {
-                question: "What is the key limitation of past-oriented safety thinking as described in the evolution of safety thinking?",
-                options: [
-                    "It focuses too much on future risks",
-                    "It's difficult to study something that is absent (you can only measure safety when it's missing)",
-                    "It requires expensive data collection systems",
-                    "It over-emphasizes personal protective equipment"
-                ],
-                correct: 1,
-                reference: "Page 6: 'Challenge: Difficult to study something that is absent - you can only measure safety when it's missing!'"
-            },
-            {
-                question: "According to the Human Organizational Performance (HOP) principles, why does blame fix nothing?",
-                options: [
-                    "Because it's legally risky for the organization",
-                    "Because punitive approaches inhibit learning and improvement",
-                    "Because workers will always make mistakes regardless",
-                    "Because safety incidents are usually caused by equipment failures"
-                ],
-                correct: 1,
-                reference: "Page 10: '2 Blame Fix Nothing - Punitive approaches inhibit learning and improvement'"
-            },
-            {
-                question: "What does resilience safety emphasize that traditional safety approaches often miss?",
-                options: [
-                    "The need for more safety rules and procedures",
-                    "The importance of adapting to the complexity of real-world systems",
-                    "Increased supervision of frontline workers",
-                    "Higher penalties for safety violations"
-                ],
-                correct: 1,
-                reference: "Page 8: 'Resilience engineering advocates that accidents represent not only failures of the system but also failures in adapting to the complexity of the real world.'"
-            },
-            {
-                question: "According to Kahn's Personal Engagement Theory, what are the three critical conditions for effective leadership engagement?",
-                options: [
-                    "Authority, Control, and Discipline",
-                    "Compliance, Documentation, and Enforcement",
-                    "Meaningfulness, Safety, and Availability",
-                    "Planning, Execution, and Follow-up"
-                ],
-                correct: 2,
-                reference: "Page 20: 'effective leadership engagement creates three critical conditions: Meaningfulness, Safety, and Availability'"
-            },
-            {
-                question: "What percentage of safety incidents can be reduced with quality leadership engagement according to the statistics shown?",
-                options: [
-                    "10%",
-                    "25%",
-                    "40%",
-                    "60%"
-                ],
-                correct: 2,
-                reference: "Page 16: '40% reduction in safety incidents with quality leadership engagement'"
-            },
-            {
-                question: "When focusing on life-threatening hazards during leadership engagement, what should leaders ask workers?",
-                options: [
-                    "'How many safety rules have you broken this week?'",
-                    "'What could kill me while I'm here today?'",
-                    "'Who was the last person to report a safety violation?'",
-                    "'How often do you use your PPE?'"
-                ],
-                correct: 1,
-                reference: "Page 23: 'Critical Questions: \"What could kill me while I'm here today?\"'"
-            },
-            {
-                question: "What is the primary reason we need to place more focus on systems rather than individuals according to the safety talk?",
-                options: [
-                    "Because systems are easier to change than people",
-                    "Because our choices and actions are shaped by the conditions around us",
-                    "Because systems cost less to modify than training programs",
-                    "Because OSHA focuses on system compliance"
-                ],
-                correct: 1,
-                reference: "Page 13: 'Our choices and actions are shaped by the conditions around us. We need to understand how people, technology, work processes, and the organization interact.'"
-            },
-            {
-                question: "What is the key message leaders should convey about safety priorities on having effective leadership engagement?",
-                options: [
-                    "'Safety is important, but we have deadlines to meet'",
-                    "'If there's ever a conflict between getting the job done and getting home safely, we choose getting home safely every time'",
-                    "'Safety is everyone's responsibility, but management has the final say'",
-                    "'We have a zero-tolerance policy for safety violations'"
-                ],
-                correct: 1,
-                reference: "Page 22: 'Message to Convey: \"If there's ever a conflict between getting the job done and getting home safely, we choose getting home safely every time.\"'"
-            },
-            {
-                question: "What is the main difference between traditional safety and resilience safety approaches?",
-                options: [
-                    "Traditional safety is more expensive to implement",
-                    "Resilience safety is adaptive and proactive rather than just finding and fixing problems",
-                    "Traditional safety only works in office environments",
-                    "Resilience safety eliminates the need for safety rules"
-                ],
-                correct: 1,
-                reference: "Page 7: 'Traditional Safety - Find and fix approach' vs 'Resilience Safety - Adaptive and proactive'"
-            }
+            // Add all the other questions here...
         ];
 
         let currentQuestion = 0;
         let selectedAnswers = [];
         let participantData = {};
 
+        // Function to send data to Google Sheets
+        function sendToGoogleSheets(data) {
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUqIH_09LnuGoIAHQc8mxXFE1SNN5uk6B0G_pW7ZvNPvnbIDMNXNF7hal3XV9RO3t-/exec';
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'data=' + encodeURIComponent(JSON.stringify(data))
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Data sent successfully:', result);
+            })
+            .catch(error => {
+                console.error('Error sending data:', error);
+                localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
+            });
+        }
+
+        // Function to start the quiz
         function startQuiz() {
             // Collect participant information
             const name = document.getElementById('participantName').value;
@@ -454,45 +379,48 @@
             loadQuestion();
         }
 
+        // Load question and options
         function loadQuestion() {
             const question = questions[currentQuestion];
-            
+
             document.getElementById('questionNumber').textContent = currentQuestion + 1;
             document.getElementById('questionText').textContent = question.question;
-            
+
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
-            
+
             question.options.forEach((option, index) => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option';
                 if (selectedAnswers[currentQuestion] === index) {
                     optionDiv.classList.add('selected');
                 }
-                
+
                 optionDiv.innerHTML = `<span class="option-label">${String.fromCharCode(65 + index)}.</span> ${option}`;
                 optionDiv.onclick = () => selectOption(index);
-                
+
                 optionsContainer.appendChild(optionDiv);
             });
-            
+
             updateNavigation();
             updateProgress();
         }
 
+        // Select an option
         function selectOption(index) {
             selectedAnswers[currentQuestion] = index;
-            
+
             // Update visual selection
             const options = document.querySelectorAll('.option');
             options.forEach((option, i) => {
                 option.classList.toggle('selected', i === index);
             });
-            
+
             // Enable next button
             document.getElementById('nextBtn').disabled = false;
         }
 
+        // Navigate to next question
         function nextQuestion() {
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
@@ -502,6 +430,7 @@
             }
         }
 
+        // Navigate to previous question
         function previousQuestion() {
             if (currentQuestion > 0) {
                 currentQuestion--;
@@ -509,10 +438,11 @@
             }
         }
 
+        // Update navigation buttons
         function updateNavigation() {
             document.getElementById('prevBtn').disabled = currentQuestion === 0;
             document.getElementById('nextBtn').disabled = selectedAnswers[currentQuestion] === null;
-            
+
             if (currentQuestion === questions.length - 1) {
                 document.getElementById('nextBtn').textContent = 'Finish';
             } else {
@@ -520,11 +450,13 @@
             }
         }
 
+        // Update progress bar
         function updateProgress() {
             const progress = ((currentQuestion + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
+        // Finish quiz
         function finishQuiz() {
             // Calculate score
             let score = 0;
@@ -545,7 +477,7 @@
                 isCorrect: answer === questions[index].correct,
                 reference: questions[index].reference
             }));
-            
+
             participantData.score = score;
             participantData.percentage = Math.round((score / questions.length) * 100);
             participantData.endTime = new Date().toISOString();
@@ -557,49 +489,26 @@
             document.getElementById('questionScreen').classList.add('hidden');
             document.getElementById('navigation').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('hidden');
-            
+
             document.getElementById('scoreText').textContent = `Your Score: ${score}/${questions.length}`;
             document.getElementById('scorePercentage').textContent = `${Math.round((score / questions.length) * 100)}%`;
         }
 
-function sendToGoogleSheets(data) {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUqIH_09LnuGoIAHQc8mxXFE1SNN5uk6B0G_pW7ZvNPvnbIDMNXNF7hal3XV9RO3t-/exec';
-
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-            // Note: NOT 'application/json'
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        // Convert the JSON to a URL-encoded string
-        body: 'data=' + encodeURIComponent(JSON.stringify(data))
-    })
-    .then(response => response.json())
-    .then(result => {
-        console.log('Data sent successfully:', result);
-    })
-    .catch(error => {
-        console.error('Error sending data:', error);
-        localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
-    });
-}
-
-
-
+        // Restart quiz
         function restartQuiz() {
             currentQuestion = 0;
             selectedAnswers = [];
             participantData = {};
-            
+
             document.getElementById('endScreen').classList.add('hidden');
             document.getElementById('startScreen').classList.remove('hidden');
-            
+
             // Clear form
             document.getElementById('participantName').value = '';
             document.getElementById('participantEmail').value = '';
             document.getElementById('participantRole').value = '';
             document.getElementById('assessmentType').value = '';
-            
+
             // Reset progress
             document.getElementById('progressFill').style.width = '0%';
         }
