@@ -562,26 +562,19 @@
             document.getElementById('scorePercentage').textContent = `${Math.round((score / questions.length) * 100)}%`;
         }
 
-function sendToGoogleSheets(data) {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWK2eMcv6VI2H52gW9HVag7zsyRXmtO8q_EvnIGWPjd-V5uqem5DOyKSYVB0JtfwyR/exec';
-
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-            // Note: NOT 'application/json'
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        // Convert the JSON to a URL-encoded string
-        body: 'data=' + encodeURIComponent(JSON.stringify(data))
-    })
-    .then(response => response.json())
-    .then(result => {
-        console.log('Data sent successfully:', result);
-    })
-    .catch(error => {
-        console.error('Error sending data:', error);
-        localStorage.setItem('quizData_' + Date.now(), JSON.stringify(data));
-    });
+function sendToGitHub(data) {
+  fetch('https://wondrous-sherbet-c5ed45.netlify.app/.netlify/functions/saveResult', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(result => {
+    console.log('Result saved!', result);
+  })
+  .catch(err => {
+    alert('Failed to save: ' + err);
+  });
 }
 
 
